@@ -1,70 +1,74 @@
-"""Climate platform that uses config‑entries."""
+"""Climate platform that uses config-entries."""
 from __future__ import annotations
 import logging
+import asyncio
+from numbers import Number
 
-from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
-from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
-from homeassistant.core import HomeAssistant
+# Retire PLATFORM_SCHEMA/YAML si tu n'en as plus besoin
+from homeassistant.components.climate import ClimateEntity
+from homeassistant.components.climate.const import HVACMode, HVACAction, ClimateEntityFeature
+from homeassistant.const import (
+    CONF_NAME, CONF_UNIQUE_ID, STATE_ON, STATE_OFF, STATE_UNKNOWN, STATE_UNAVAILABLE
+)
+from homeassistant.core import HomeAssistant, callback, Event
 from homeassistant.helpers.restore_state import RestoreEntity
-from .smartir_entity import SmartIRClimate  # Your existing class
+from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.util.unit_system import UnitOfTemperature
+from homeassistant.util.temperature import TemperatureConverter
+
+# Constante locale depuis le config_flow
+from .config_flow import CONF_DEVICE_CODE
+
+# Base/helper réels
+from .smartir_entity import load_device_data_file, SmartIR
 from .smartir_helpers import closest_match_value
-from .smartir_entity import load_device_data_file, SmartIR, PLATFORM_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = "SmartIR Climate"
-
 CONF_TEMPERATURE_SENSOR = "temperature_sensor"
 CONF_HUMIDITY_SENSOR = "humidity_sensor"
 
 PRECISION_DOUBLE = 2
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Optional(CONF_TEMPERATURE_SENSOR): cv.entity_id,
-        vol.Optional(CONF_HUMIDITY_SENSOR): cv.entity_id,
-    }
-)
-_LOGGER = logging.getLogger(__name__)
+PRECISION_WHOLE = 1
+PRECISION_TENTHS = 0.1
+PRECISION_HALVES = 0.5
 
 
-async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
-    """Set up a climate device from a config‑entry."""
-    _LOGGER.debug("Setting up SmartIR Climate entity for %s", entry.title)
+# ✅ Signature correcte pour une plateforme
+async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> None:
+    """Set up a climate device from a config entry."""
+    _LOGGER.warning("Setting up SmartIR Climate entity for %s", entry.title)
 
-    # Load the same device data that the old YAML code used
     device_data = await load_device_data_file(
         entry.data,
         "climate",
-        {
-            "hvac_modes": [mode for mode in HVAC_MODES if mode != HVACMode.OFF],
-        },
+        {},  # ou tes overrides si nécessaires
         hass,
     )
     if not device_data:
         _LOGGER.error("Could not load climate data for %s", entry.title)
-        return False
+        return
 
-    # Pass the config entry data to the existing SmartIRClimate class
     entity = SmartIRClimate(hass, entry.data, device_data)
-    hass.async_create_task(
-        hass.helpers.entity_platform.async_add_entities([entity], True)
-    )
-    return True
+    async_add_entities([entity], True)
+
 
 
 class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
+    """SmartIR Climate entity implementation."""
+
     _enable_turn_on_off_backwards_compatibility = False
 
     def __init__(self, hass: HomeAssistant, config: ConfigType, device_data):
-        # Initialize SmartIR device
         SmartIR.__init__(self, hass, config, device_data)
 
         self._temperature_sensor = config.get(CONF_TEMPERATURE_SENSOR)
         self._humidity_sensor = config.get(CONF_HUMIDITY_SENSOR)
         self._temperature_unit = hass.config.units.temperature_unit
 
+        # Initialisation des états
         self._hvac_mode = None
         self._preset_mode = None
         self._fan_mode = None
@@ -162,7 +166,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
         await super().async_added_to_hass()
-        _LOGGER.debug(
+        _LOGGER.warning(
             f"async_added_to_hass {self} {self.name} {self.supported_features}"
         )
 
@@ -472,7 +476,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                     if off_mode in self._commands.keys() and isinstance(
                         self._commands[off_mode], str
                     ):
-                        _LOGGER.debug("Found '%s' operation mode command.", off_mode)
+                        _LOGGER.warning("Found '%s' operation mode command.", off_mode)
                         await self._controller.send(self._commands[off_mode])
                         await asyncio.sleep(self._delay)
                     elif "off" in self._commands.keys() and isinstance(
@@ -485,13 +489,13 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                             and self._state == STATE_OFF
                         ):
                             # prevent to resend 'off' command if same as 'on' and device is already off
-                            _LOGGER.debug(
+                            _LOGGER.warning(
                                 "As 'on' and 'off' commands are identical and device is already in requested '%s' state, skipping sending '%s' command",
                                 self._state,
                                 "off",
                             )
                         else:
-                            _LOGGER.debug("Found 'off' operation mode command.")
+                            _LOGGER.warning("Found 'off' operation mode command.")
                             await self._controller.send(self._commands["off"])
                             await asyncio.sleep(self._delay)
                     else:
@@ -511,21 +515,21 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                             and self._state == STATE_ON
                         ):
                             # prevent to resend 'on' command if same as 'off' and device is already on
-                            _LOGGER.debug(
+                            _LOGGER.warning(
                                 "As 'on' and 'off' commands are identical and device is already in requested '%s' state, skipping sending '%s' command",
                                 self._state,
                                 "on",
                             )
                         else:
                             # if on code is not present, the on bit can be still set later in the all operation/fan codes"""
-                            _LOGGER.debug("Found 'on' operation mode command.")
+                            _LOGGER.warning("Found 'on' operation mode command.")
                             await self._controller.send(self._commands["on"])
                             await asyncio.sleep(self._delay)
 
                     commands = self._commands
                     if hvac_mode in commands.keys():
                         commands = commands[hvac_mode]
-                        _LOGGER.debug(
+                        _LOGGER.warning(
                             "Found '%s' operation mode command.",
                             hvac_mode,
                         )
@@ -541,7 +545,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                                 if key in commands.keys():
                                     preset_mode = key
                                     commands = commands[key]
-                                    _LOGGER.debug(
+                                    _LOGGER.warning(
                                         "Found '%s' preset mode command.",
                                         preset_mode,
                                     )
@@ -564,7 +568,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                                 if key in commands.keys():
                                     fan_mode = key
                                     commands = commands[key]
-                                    _LOGGER.debug(
+                                    _LOGGER.warning(
                                         "Found '%s' fan mode command.",
                                         fan_mode,
                                     )
@@ -587,7 +591,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                                 if key in commands.keys():
                                     swing_mode = key
                                     commands = commands[key]
-                                    _LOGGER.debug(
+                                    _LOGGER.warning(
                                         "Found '%s' swing mode command.",
                                         swing_mode,
                                     )
@@ -611,7 +615,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                             self._data_temperature_unit,
                             None,
                         )
-                        _LOGGER.debug(
+                        _LOGGER.warning(
                             "Input HA temperature '%s%s' converted into device temperature '%s%s'.",
                             temperature,
                             self._ha_temperature_unit,
@@ -634,7 +638,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                                 self._ha_temperature_unit,
                                 self._temp_step,
                             )
-                            _LOGGER.debug(
+                            _LOGGER.warning(
                                 "Input HA temperature '%s%s' closest found device temperature command '%s%s' converts back into HA '%s%s' temperature.",
                                 temperature,
                                 self._ha_temperature_unit,
@@ -651,7 +655,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
                                 target_temperature,
                             )
                             return
-                        _LOGGER.debug(
+                        _LOGGER.warning(
                             "Found '%s', temperature command.",
                             temperature,
                         )
@@ -773,7 +777,7 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
 
 
 def convert_temp(temperature: Number, from_unit: str, to_unit: str, precision: Number):
-    _LOGGER.debug(
+    _LOGGER.warning(
         "convert temp '%s' from '%s' to '%s' with '%s' precision.",
         temperature,
         from_unit,

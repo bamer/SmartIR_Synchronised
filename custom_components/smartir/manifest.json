@@ -6,7 +6,7 @@
   "documentation": "https://github.com/bamer/SmartIR_Synchronised",
   "iot_class": "assumed_state",
   "issue_tracker": "https://github.com/bamer/SmartIR_Synchronised/issues",
-  "requirements": [],
   "config_flow": true,
-  "version": "0.0.1"
+  "platforms": ["climate"],
+  "loggers": ["custom_components.smartir"]
 }
