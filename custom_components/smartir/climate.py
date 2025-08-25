@@ -1,38 +1,12 @@
-import asyncio
-import logging
+"""Climate platform that uses config‑entries."""
 from __future__ import annotations
-import voluptuous as vol
-from numbers import Number
+import logging
+
+from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
+from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.restore_state import RestoreEntity
 from .smartir_entity import SmartIRClimate  # Your existing class
-from homeassistant.components.climate import ClimateEntity
-
-
-from homeassistant.components.climate.const import (
-    ClimateEntityFeature,
-    HVACMode,
-    HVACAction,
-    HVAC_MODES,
-    ATTR_HVAC_MODE,
-)
-from homeassistant.const import (
-    CONF_NAME,
-    STATE_ON,
-    STATE_OFF,
-    STATE_UNKNOWN,
-    STATE_UNAVAILABLE,
-    ATTR_TEMPERATURE,
-    PRECISION_TENTHS,
-    PRECISION_HALVES,
-    PRECISION_WHOLE,
-    UnitOfTemperature,
-)
-from homeassistant.core import HomeAssistant, Event, EventStateChangedData, callback
-from homeassistant.helpers.event import async_track_state_change_event
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.helpers.typing import ConfigType
-from homeassistant.util.unit_conversion import TemperatureConverter
 from .smartir_helpers import closest_match_value
 from .smartir_entity import load_device_data_file, SmartIR, PLATFORM_SCHEMA
 
