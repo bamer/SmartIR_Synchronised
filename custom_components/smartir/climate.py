@@ -6,6 +6,7 @@ from numbers import Number
 from homeassistant.helpers.restore_state import RestoreEntity
 from .smartir_entity import SmartIRClimate  # Your existing class
 
+
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
