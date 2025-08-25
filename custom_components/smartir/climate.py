@@ -8,7 +8,6 @@ from .smartir_entity import SmartIRClimate  # Your existing class
 from homeassistant.components.climate import ClimateEntity
 
 
-
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
     HVACMode,
@@ -54,6 +53,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
     """Set up a climate device from a config‑entry."""
