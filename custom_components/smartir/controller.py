@@ -6,6 +6,7 @@ import requests
 import struct
 import json
 import logging
+
 _LOGGER = logging.getLogger(__name__)
 
 from .controller_const import (
