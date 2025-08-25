@@ -9,12 +9,10 @@ defaults:
     working-directory: custom_components/smartir
 
 jobs:
-  publish:
-    name: "Publish"
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout the repository"
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: "Update version"
         run: |
