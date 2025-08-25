@@ -248,6 +248,9 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
         else:
             schema_dict[vol.Optional("name")] = str
         
+        if current_config.get("controller_type")=="esphome":
+            _LOGGER.warning("Current controller_data is esphome")
+            domain = "esphome"
         # Handle controller_data separately to avoid empty string default
         if current_config.get("controller_data"):
             schema_dict[vol.Optional("controller_data", default=current_config.get("controller_data"))] = selector.EntitySelector(
@@ -257,6 +260,7 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
                 )
             )
         else:
+
             schema_dict[vol.Optional("controller_data")] = selector.EntitySelector(
                 selector.EntitySelectorConfig(
                     domain="remote",
@@ -313,7 +317,9 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
             else:
                 schema_dict[vol.Optional("power_sensor")] = selector.EntitySelector(selector.EntitySelectorConfig(**power_sensor_config))
 
-        device_code_help_url = f"https://github.com/smartHomeHub/SmartIR/tree/master/codes/{device_type}"
+        device_code_help_url = f"https://github.com/bamer/SmartIR_Synchronised/tree/v0.1-beta/codes/{device_type}"
+
+     
 
         return self.async_show_form(
             step_id="init",

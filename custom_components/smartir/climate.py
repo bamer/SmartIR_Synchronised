@@ -96,18 +96,29 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         _LOGGER.debug(f"Creating device directory: {device_files_absdir}")
         os.makedirs(device_files_absdir, exist_ok=True)
 
+
     device_json_filename = str(device_code) + '.json'
     device_json_path = os.path.join(device_files_absdir, device_json_filename)
-    _LOGGER.debug(f"Device JSON path: {device_json_path}")
+
+
+    if not os.path.exists(device_json_path):
+    # si pas de fichiers json dans les codes regular on teste dans customs_codes 
+        device_files_customs_codes_absdir = os.path.join(COMPONENT_ABS_DIR, os.path.join('customs_codes', 'climate'))
+        device_json_path = os.path.join(device_files_customs_codes_absdir, device_json_filename)
+
+    if not os.path.exists(device_json_path):
+        # si pas de fichiers json dans les customs_codes regular on va essayer de le telecharger
+
+        _LOGGER.debug(f"No customs code found try regular codes Device JSON path: {device_json_path}")
+
+
 
     if not os.path.exists(device_json_path):
         _LOGGER.warning("Couldn't find the device Json file. The component will " \
                         "try to download it from the GitHub repo.")
 
         try:
-            codes_source = ("https://raw.githubusercontent.com/"
-                            "smartHomeHub/SmartIR/master/"
-                            "codes/climate/{}.json")
+            codes_source = ("https://github.com/bamer/SmartIR_Synchronised/tree/v0.1-beta/codes/{}.json")
 
             download_url = codes_source.format(device_code)
             _LOGGER.info(f"Attempting to download device JSON from: {download_url}")
