@@ -1,4 +1,5 @@
 """Constants for the SmartIR integration."""
+
 import logging
 
 DOMAIN = "smartir"
@@ -21,14 +22,14 @@ CONTROLLER_TYPES = {
     "xiaomi": "Xiaomi IR Remote (ChuangmiIr)",
     "lookin": "LOOK.in Remote",
     "esphome": "ESPHome User-defined service for remote transmitter",
-    "mqtt": "MQTT Publish service"
+    "mqtt": "MQTT Publish service",
 }
 
 DEVICE_TYPES = {
     "climate": "Climate (Air Conditioner)",
     "fan": "Fan",
     "media_player": "Media Player (TV/Audio)",
-    "light": "Light"
+    "light": "Light",
 }
 
 _LOGGER = logging.getLogger(__name__)
