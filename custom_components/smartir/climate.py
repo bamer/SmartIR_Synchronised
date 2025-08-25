@@ -106,25 +106,25 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     device_files_absdir = os.path.join(COMPONENT_ABS_DIR, device_files_subdir)
 
     if not os.path.isdir(device_files_absdir):
-        _LOGGER.debug(f"Creating device directory: {device_files_absdir}")
+        _LOGGER.info(f"Creating device directory: {device_files_absdir}")
         os.makedirs(device_files_absdir, exist_ok=True)
 
     device_json_filename = str(device_code) + ".json"
     device_json_path = os.path.join(device_files_absdir, device_json_filename)
 
     if not os.path.exists(device_json_path):
-        # si pas de fichiers json dans les codes regular on teste dans customs_codes
-        device_files_customs_codes_absdir = os.path.join(
-            COMPONENT_ABS_DIR, os.path.join("customs_codes", "climate")
+        # si pas de fichiers json dans les codes regular on teste dans custom_codes
+        device_files_custom_codesabsdir = os.path.join(
+            COMPONENT_ABS_DIR, os.path.join("custom_codes", "climate")
         )
         device_json_path = os.path.join(
-            device_files_customs_codes_absdir, device_json_filename
+            device_files_custom_codesabsdir, device_json_filename
         )
 
     if not os.path.exists(device_json_path):
-        # si pas de fichiers json dans les customs_codes regular on va essayer de le telecharger
+        # si pas de fichiers json dans les custom_codes regular on va essayer de le telecharger
 
-        _LOGGER.debug(
+        _LOGGER.info(
             f"No customs code found try regular codes Device JSON path: {device_json_path}"
         )
 
