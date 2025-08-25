@@ -1,0 +1,85 @@
+{
+  "services": {
+    "smartir": "mdi:remote"
+  },
+  "entity": {
+    "climate": {
+      "default": "mdi:thermostat",
+      "state": {
+        "off": "mdi:thermostat-off",
+        "heat": "mdi:fire",
+        "cool": "mdi:snowflake",
+        "heat_cool": "mdi:thermostat",
+        "auto": "mdi:thermostat-auto",
+        "dry": "mdi:water-percent",
+        "fan_only": "mdi:fan"
+      },
+      "state_attributes": {
+        "hvac_action": {
+          "heating": "mdi:fire",
+          "cooling": "mdi:snowflake",
+          "drying": "mdi:water-percent",
+          "fan": "mdi:fan",
+          "idle": "mdi:thermometer",
+          "off": "mdi:power-off"
+        }
+      }
+    },
+    "fan": {
+      "default": "mdi:fan",
+      "state": {
+        "on": "mdi:fan",
+        "off": "mdi:fan-off"
+      },
+      "state_attributes": {
+        "preset_mode": {
+          "sleep": "mdi:sleep",
+          "normal": "mdi:fan",
+          "nature": "mdi:leaf",
+          "auto": "mdi:fan-auto"
+        },
+        "oscillating": {
+          "true": "mdi:rotate-360",
+          "false": "mdi:fan"
+        }
+      }
+    },
+    "media_player": {
+      "default": "mdi:television",
+      "device_class": {
+        "tv": "mdi:television",
+        "speaker": "mdi:speaker",
+        "receiver": "mdi:audio-video"
+      },
+      "state": {
+        "on": "mdi:television",
+        "off": "mdi:television-off",
+        "playing": "mdi:play",
+        "paused": "mdi:pause",
+        "idle": "mdi:television"
+      }
+    },
+    "light": {
+      "default": "mdi:lightbulb",
+      "state": {
+        "on": "mdi:lightbulb-on",
+        "off": "mdi:lightbulb-off"
+      },
+      "state_attributes": {
+        "color_mode": {
+          "brightness": "mdi:brightness-6",
+          "color_temp": "mdi:thermometer",
+          "onoff": "mdi:lightbulb-outline"
+        }
+      }
+    }
+  },
+  "entity_component": {
+    "smartir": {
+      "climate": "mdi:thermostat",
+      "fan": "mdi:fan",
+      "media_player": "mdi:television",
+      "light": "mdi:lightbulb"
+    }
+  }
+}
