@@ -252,7 +252,6 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             "controller_type": self._controller_type,
         }
 
-
         # -------------------------------------------------------------------
         # Remote entity – présent pour tous les contrôleurs *sauf* ESPHome
         # -------------------------------------------------------------------
