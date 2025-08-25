@@ -185,9 +185,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             domain="sensor", device_class="power", multiple=False
                         )
                     ),
-                    vol.Optional(
-                        "power_sensor_restore_state", default=False
-                    ): bool,
+                    vol.Optional("power_sensor_restore_state", default=False): bool,
                 }
             )
         elif self.device_type in ["fan", "light", "media_player"]:
@@ -201,9 +199,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             )
 
-        device_code_help_url = (
-            f"https://github.com/smartHomeHub/SmartIR/tree/master/codes/{self.device_type}"
-        )
+        device_code_help_url = f"https://github.com/smartHomeHub/SmartIR/tree/master/codes/{self.device_type}"
 
         return self.async_show_form(
             step_id="device_config",
@@ -260,9 +256,7 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
 
         # Optional name
         if current_config.get("name"):
-            schema_dict[
-                vol.Optional("name", default=current_config.get("name"))
-            ] = str
+            schema_dict[vol.Optional("name", default=current_config.get("name"))] = str
         else:
             schema_dict[vol.Optional("name")] = str
 
@@ -298,9 +292,11 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
                     )
                 )
             else:
-                schema_dict[vol.Optional("temperature_sensor")] = selector.EntitySelector(
-                    selector.EntitySelectorConfig(
-                        domain="sensor", device_class="temperature", multiple=False
+                schema_dict[vol.Optional("temperature_sensor")] = (
+                    selector.EntitySelector(
+                        selector.EntitySelectorConfig(
+                            domain="sensor", device_class="temperature", multiple=False
+                        )
                     )
                 )
             # humidity sensor
@@ -365,9 +361,7 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
                     )
                 )
 
-        device_code_help_url = (
-            f"https://github.com/bamer/SmartIR_Synchronised/tree/v0.1-beta/codes/{self.device_type}"
-        )
+        device_code_help_url = f"https://github.com/bamer/SmartIR_Synchronised/tree/v0.1-beta/codes/{self.device_type}"
 
         return self.async_show_form(
             step_id="init",
