@@ -145,7 +145,6 @@ These are command to set controlled device into desired work state. Due to the n
 ```
 
 - If you device doesn't support some mode under given higher level mode (for example temperatures are not supported under fan_only operation mode, or presetModes are not supported under dry operation mode), you have three possibilities how to address this:
-
   1. Use `-` as 'catch all' mode name/temperature. Using this approach has additional behavior - if you change mode/temperature which to the value covered by `-` the value will not change in the HA. Example: temperatures are not supported under fan_only operation mode - when you will try to change temperature using `-` key the temperature in HA stays same:
 
   ```yaml:

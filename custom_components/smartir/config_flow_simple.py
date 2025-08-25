@@ -1,4 +1,5 @@
 """Config flow for SmartIR integration - Simplified version."""
+
 import logging
 import voluptuous as vol
 
@@ -27,13 +28,11 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     "controller": "broadlink",  # Use 'controller' instead of controller_type
                     "name": "Test Device",
                     "device_code": 1000,
-                    "controller_data": "remote.broadlink"
+                    "controller_data": "remote.broadlink",
                 },
             )
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({
-                vol.Required("test"): str
-            }),
+            data_schema=vol.Schema({vol.Required("test"): str}),
         )
