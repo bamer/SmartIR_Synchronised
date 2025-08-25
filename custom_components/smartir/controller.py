@@ -6,6 +6,7 @@ import requests
 import struct
 import json
 
+
 from .controller_const import (
     BROADLINK_CONTROLLER,
     XIAOMI_CONTROLLER,
