@@ -89,7 +89,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         options=["climate", "fan", "light", "media_player"]
                     )
                 ),
-                vol.Required("controller_type", default="ESPHome"): selector.SelectSelector(
+                vol.Required(
+                    "controller_type", default="ESPHome"
+                ): selector.SelectSelector(
                     selector.SelectSelectorConfig(options=["ESPHome", "Other"])
                 ),
                 vol.Required("esphome_service"): es_service_selector,
@@ -131,7 +133,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional("power_sensor"): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="binary_sensor", multiple=False)
+                    selector.EntitySelectorConfig(
+                        domain="binary_sensor", multiple=False
+                    )
                 ),
             }
         )
@@ -160,7 +164,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # ---------------------------
     # Final step
     # ---------------------------
-    async def async_create_entry(self, title: str, data: dict) -> config_entries.FlowResult:
+    async def async_create_entry(
+        self, title: str, data: dict
+    ) -> config_entries.FlowResult:
         """Create the final entry."""
         _LOGGER.warning("SmartIR ConfigFlow: creating entry %s", title)
         return super().async_create_entry(title=title, data=data)

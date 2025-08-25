@@ -1,4 +1,5 @@
 """Climate platform that uses config-entries."""
+
 from __future__ import annotations
 import logging
 import asyncio
@@ -6,9 +7,18 @@ from numbers import Number
 
 # Retire PLATFORM_SCHEMA/YAML si tu n'en as plus besoin
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import HVACMode, HVACAction, ClimateEntityFeature
+from homeassistant.components.climate.const import (
+    HVACMode,
+    HVACAction,
+    ClimateEntityFeature,
+)
 from homeassistant.const import (
-    CONF_NAME, CONF_UNIQUE_ID, STATE_ON, STATE_OFF, STATE_UNKNOWN, STATE_UNAVAILABLE
+    CONF_NAME,
+    CONF_UNIQUE_ID,
+    STATE_ON,
+    STATE_OFF,
+    STATE_UNKNOWN,
+    STATE_UNAVAILABLE,
 )
 from homeassistant.core import HomeAssistant, callback, Event
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -53,7 +63,6 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> N
 
     entity = SmartIRClimate(hass, entry.data, device_data)
     async_add_entities([entity], True)
-
 
 
 class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
