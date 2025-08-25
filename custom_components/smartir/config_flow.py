@@ -232,6 +232,7 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
             # Update the config entry with new options
             return self.async_create_entry(title="", data=user_input)
 
+
         # Get current configuration
         current_config = self.config_entry.data
         device_type = current_config.get("device_type")
