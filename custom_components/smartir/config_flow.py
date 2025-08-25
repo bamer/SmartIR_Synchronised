@@ -2,7 +2,7 @@
 
 The flow works in two UI steps :
 
-1️⃣  Choose the controller type (Broadlink, MQTT, ESPHome, …)  
+1️⃣  Choose the controller type (Broadlink, MQTT, ESPHome, …)
 2️⃣  Generic options (name, optional sensors, plus the fields that are
     specific to the selected controller).
 
@@ -119,9 +119,9 @@ CONTROLLER_FIELDS: Dict[str, Dict[str, Any]] = {
     # **ESPHome** – no remote entity, we need a *service* (action)
     # -----------------------------------------------------------------------
     "ESPHome": {
-        "entity_selector": None,               # ← on ne demande pas d’entité remote
-        "needs_action": True,                  # ← indique qu’on doit demander un service
-        "extra_schema": {},                    # aucun autre champ spécial
+        "entity_selector": None,  # ← on ne demande pas d’entité remote
+        "needs_action": True,  # ← indique qu’on doit demander un service
+        "extra_schema": {},  # aucun autre champ spécial
     },
 }
 
@@ -187,9 +187,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
             ),
             vol.Optional(CONF_HUMIDITY_SENSOR): selector.EntitySelector(
-                selector.EntitySelectorConfig(
-                    domain="sensor", device_class="humidity"
-                )
+                selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
             ),
         }
 
@@ -245,13 +243,10 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Combine everything we have gathered and create the ConfigEntry."""
         data: dict = {
             CONF_NAME: self._partial_data.get(CONF_NAME, "SmartIR Climate"),
-            CONF_TEMPERATURE_SENSOR: self._partial_data.get(
-                CONF_TEMPERATURE_SENSOR
-            ),
+            CONF_TEMPERATURE_SENSOR: self._partial_data.get(CONF_TEMPERATURE_SENSOR),
             CONF_HUMIDITY_SENSOR: self._partial_data.get(CONF_HUMIDITY_SENSOR),
             "controller_type": self._controller_type,
         }
-
 
         # -------------------------------------------------------------------
         # Remote entity – présent pour tous les contrôleurs *sauf* ESPHome
