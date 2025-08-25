@@ -109,7 +109,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     # ------------------------------------------------------------------
-    #  DEVICE CONFIG – final step 
+    #  DEVICE CONFIG – final step
     # ------------------------------------------------------------------
     async def async_step_device_config(self, user_input=None):
         """Handle the device configuration step."""
