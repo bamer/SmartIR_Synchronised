@@ -33,23 +33,41 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-async def async_setup_platform(
-    hass: HomeAssistant, config: ConfigType, async_add_entities, discovery_info=None
-):
-    """Set up the IR Fan platform."""
-    _LOGGER.debug("Setting up the SmartIR fan platform")
-    if not (
-        device_data := await load_device_data_file(
-            config,
-            "fan",
-            {},
-            hass,
-        )
-    ):
-        _LOGGER.error("SmartIR fan device data init failed!")
-        return
+from __future__ import annotations
 
-    async_add_entities([SmartIRFan(hass, config, device_data)])
+import logging
+
+from homeassistant.components.fan import FanEntity, PLATFORM_SCHEMA
+from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.restore_state import RestoreEntity
+from .smartir_entity import SmartIRFan  # Your existing class
+
+_LOGGER = logging.getLogger(__name__)
+
+async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
+    """Set up a fan device from a config‑entry."""
+    _LOGGER.debug("Setting up SmartIR Fan entity for %s", entry.title)
+
+    # Load the same device data that the old YAML code used
+    device_data = await load_device_data_file(
+        entry.data,
+        "fan",
+        {
+            "speed": [mode for mode in speed if mode != speed.OFF],
+        },
+        hass,
+    )
+    if not device_data:
+        _LOGGER.error("Could not load fan data for %s", entry.title)
+        return False
+
+    # Pass the config entry data to the existing SmartIRFan class
+    entity = SmartIRFan(hass, entry.data, device_data)
+    hass.async_create_task(
+        hass.helpers.entity_platform.async_add_entities([entity], True)
+    )
+    return True
 
 
 class SmartIRFan(FanEntity, RestoreEntity):

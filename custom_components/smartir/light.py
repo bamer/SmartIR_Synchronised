@@ -36,23 +36,42 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-async def async_setup_platform(
-    hass: HomeAssistant, config: ConfigType, async_add_entities, discovery_info=None
-):
-    """Set up the IR Light platform."""
-    _LOGGER.debug("Setting up the SmartIR light platform")
-    if not (
-        device_data := await load_device_data_file(
-            config,
-            "light",
-            {},
-            hass,
-        )
-    ):
-        _LOGGER.error("SmartIR light device data init failed!")
-        return
+"""Climate platform that uses config‑entries."""
+from __future__ import annotations
 
-    async_add_entities([SmartIRLight(hass, config, device_data)])
+import logging
+
+from homeassistant.components.light import LightEntity, PLATFORM_SCHEMA
+from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.restore_state import RestoreEntity
+from .smartir_entity import SmartIRLight # Your existing class
+
+_LOGGER = logging.getLogger(__name__)
+
+async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
+    """Set up a climate device from a config‑entry."""
+    _LOGGER.debug("Setting up SmartIR Climate entity for %s", entry.title)
+
+    # Load the same device data that the old YAML code used
+    device_data = await load_device_data_file(
+        entry.data,
+        "light",
+        {
+            "light_modes": [mode for mode in LIGHT_MODES if mode != LIGHTMode.OFF],
+        },
+        hass,
+    )
+    if not device_data:
+        _LOGGER.error("Could not load climate data for %s", entry.title)
+        return False
+
+    # Pass the config entry data to the existing SmartIRClimate class
+    entity = SmartIRLight(hass, entry.data, device_data)
+    hass.async_create_task(
+        hass.helpers.entity_platform.async_add_entities([entity], True)
+    )
+    return True
 
 
 class SmartIRLight(LightEntity, RestoreEntity):

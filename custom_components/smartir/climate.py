@@ -1,13 +1,11 @@
 import asyncio
 import logging
-import contextlib
-import asyncio
-import aiofiles
+from __future__ import annotations
 import voluptuous as vol
 from numbers import Number
-import os.path
-import json
-from . import COMPONENT_ABS_DIR, Helper
+from homeassistant.helpers.restore_state import RestoreEntity
+from .smartir_entity import SmartIRClimate  # Your existing class
+
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
@@ -16,9 +14,6 @@ from homeassistant.components.climate.const import (
     HVAC_MODES,
     ATTR_HVAC_MODE,
 )
-from .const import DOMAIN, CONF_CONTROLLER_TYPE, CONF_DEVICE_TYPE, CONTROLLER_TYPES
-
-
 from homeassistant.const import (
     CONF_NAME,
     STATE_ON,
@@ -31,171 +26,56 @@ from homeassistant.const import (
     PRECISION_WHOLE,
     UnitOfTemperature,
 )
-from homeassistant.core import (
-    HomeAssistant,
-    Event,
-    EventStateChangedData,
-    callback,
-    ServiceCall,
-)
+from homeassistant.core import HomeAssistant, Event, EventStateChangedData, callback
 from homeassistant.helpers.event import async_track_state_change_event
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util.unit_conversion import TemperatureConverter
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant import config_entries
 from .smartir_helpers import closest_match_value
 from .smartir_entity import load_device_data_file, SmartIR, PLATFORM_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = "SmartIR Climate"
-DEFAULT_DELAY = 0.5
 
-CONF_UNIQUE_ID = "unique_id"
-CONF_DEVICE_CODE = "device_code"
-CONF_CONTROLLER_DATA = "controller_data"
-CONF_DELAY = "delay"
 CONF_TEMPERATURE_SENSOR = "temperature_sensor"
 CONF_HUMIDITY_SENSOR = "humidity_sensor"
-CONF_POWER_SENSOR = "power_sensor"
-CONF_POWER_SENSOR_RESTORE_STATE = "power_sensor_restore_state"
 
 PRECISION_DOUBLE = 2
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Optional(CONF_UNIQUE_ID): cv.string,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Required(CONF_DEVICE_CODE): cv.positive_int,
-        vol.Required(CONF_CONTROLLER_DATA): cv.string,
-        vol.Optional(CONF_DELAY, default=DEFAULT_DELAY): cv.positive_float,
         vol.Optional(CONF_TEMPERATURE_SENSOR): cv.entity_id,
         vol.Optional(CONF_HUMIDITY_SENSOR): cv.entity_id,
-        vol.Optional(CONF_POWER_SENSOR): cv.entity_id,
-        vol.Optional(CONF_POWER_SENSOR_RESTORE_STATE, default=False): cv.boolean,
     }
 )
+_LOGGER = logging.getLogger(__name__)
 
+async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
+    """Set up a climate device from a config‑entry."""
+    _LOGGER.debug("Setting up SmartIR Climate entity for %s", entry.title)
 
-# ---------------------------------------------------------------------------
-#  NEW – async_setup_entry   (called from __init__.py)
-# ---------------------------------------------------------------------------
-async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up SmartIR climate from a config entry."""
-    from .helpers import async_setup_entry_platform
-
-    await async_setup_entry_platform(
-        hass, entry, async_add_entities, async_setup_platform
+    # Load the same device data that the old YAML code used
+    device_data = await load_device_data_file(
+        entry.data,
+        "climate",
+        {
+            "hvac_modes": [mode for mode in HVAC_MODES if mode != HVACMode.OFF],
+        },
+        hass,
     )
+    if not device_data:
+        _LOGGER.error("Could not load climate data for %s", entry.title)
+        return False
 
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the IR Climate platform."""
-    _LOGGER.info(f"Setting up SmartIR climate platform with config: {config}")
-    device_code = config.get(CONF_DEVICE_CODE)
-    device_name = config.get(CONF_NAME, DEFAULT_NAME)
-    unique_id = config.get("unique_id")
-
-    _LOGGER.info(
-        f"Device setup: code={device_code}, name={device_name}, unique_id={unique_id}"
+    # Pass the config entry data to the existing SmartIRClimate class
+    entity = SmartIRClimate(hass, entry.data, device_data)
+    hass.async_create_task(
+        hass.helpers.entity_platform.async_add_entities([entity], True)
     )
-
-    device_files_subdir = os.path.join("codes", "climate")
-    device_files_absdir = os.path.join(COMPONENT_ABS_DIR, device_files_subdir)
-
-    if not os.path.isdir(device_files_absdir):
-        _LOGGER.info(f"Creating device directory: {device_files_absdir}")
-        os.makedirs(device_files_absdir, exist_ok=True)
-
-    device_json_filename = str(device_code) + ".json"
-    device_json_path = os.path.join(device_files_absdir, device_json_filename)
-
-    if not os.path.exists(device_json_path):
-        # si pas de fichiers json dans les codes regular on teste dans custom_codes
-        device_files_custom_codesabsdir = os.path.join(
-            COMPONENT_ABS_DIR, os.path.join("custom_codes", "climate")
-        )
-        device_json_path = os.path.join(
-            device_files_custom_codesabsdir, device_json_filename
-        )
-
-    if not os.path.exists(device_json_path):
-        # si pas de fichiers json dans les custom_codes regular on va essayer de le telecharger
-
-        _LOGGER.info(
-            f"No customs code found try regular codes Device JSON path: {device_json_path}"
-        )
-
-    if not os.path.exists(device_json_path):
-        _LOGGER.warning(
-            "Couldn't find the device Json file. The component will "
-            "try to download it from the GitHub repo."
-        )
-
-        try:
-            codes_source = "https://github.com/bamer/SmartIR_Synchronised/tree/v0.1-beta/codes/{}.json"
-
-            download_url = codes_source.format(device_code)
-            _LOGGER.info(f"Attempting to download device JSON from: {download_url}")
-            await Helper.downloader(download_url, device_json_path)
-            _LOGGER.info(f"Download completed for device {device_code}")
-        except Exception as e:
-            _LOGGER.error(f"Download failed for device {device_code}: {e}")
-            _LOGGER.error(
-                "There was an error while downloading the device Json file. "
-                "Please check your internet connection or if the device code "
-                "exists on GitHub. If the problem still exists please "
-                "place the file manually in the proper directory."
-            )
-            return
-
-    try:
-        _LOGGER.debug(f"Loading JSON file: {device_json_path}")
-        async with aiofiles.open(device_json_path, mode="r") as j:
-            content = await j.read()
-            device_data = json.loads(content)
-            _LOGGER.info(
-                f"Device JSON loaded: manufacturer={device_data.get('manufacturer')}, models={device_data.get('supportedModels')}"
-            )
-    except Exception as e:
-        _LOGGER.error(f"Failed to load device JSON file: {e}")
-        return
-
-    # Map controller type from config entry to the format expected by controller.py
-    controller_type = config.get(CONF_CONTROLLER_TYPE)
-    if controller_type and controller_type in CONTROLLER_TYPES:
-        _LOGGER.debug(
-            f"Mapping controller type {controller_type} to {CONTROLLER_TYPES[controller_type]}"
-        )
-        # Override the controller from JSON with the one from config entry
-        device_data["supportedController"] = CONTROLLER_TYPES[controller_type]
-
-    _LOGGER.info(f"Creating SmartIR climate entity: {device_name}")
-    entity = SmartIRClimate(hass, config, device_data)
-    _LOGGER.info(f"Adding entity to Home Assistant: {entity.name}")
-    async_add_entities([entity])
-    _LOGGER.info(f"SmartIR climate entity {device_name} added successfully")
-
-
-# async def reload_service_handler(service: ServiceCall) -> None:
-#         """Remove all user-defined groups and load new ones from config."""
-#         conf = None
-#         with contextlib.suppress(HomeAssistantError):
-#             conf =  await load_device_data_file(
-#             config,
-#             "climate",
-#             {
-#                 "hvac_modes": [mode for mode in HVAC_MODES if mode != HVACMode.OFF],
-#             },
-#             hass,
-#         )
-#         if conf is None:
-#             return
-#         await async_reload_integration_platforms(hass, DOMAIN, PLATFORMS)
-#         _async_setup_shared_data(hass)
-#         await _async_process_config(hass, conf)
+    return True
 
 
 class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
@@ -205,24 +85,10 @@ class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):
         # Initialize SmartIR device
         SmartIR.__init__(self, hass, config, device_data)
 
-        device_name = config.get(CONF_NAME, DEFAULT_NAME)
-        device_code = config.get(CONF_DEVICE_CODE)
-        unique_id = config.get("unique_id")
-
-        _LOGGER.info(
-            f"SmartIRClimate init started for device '{device_name}' (code: {device_code}, unique_id: {unique_id})"
-        )
-        _LOGGER.debug(
-            f"Device supported models: {device_data.get('supportedModels', [])}"
-        )
-
         self._temperature_sensor = config.get(CONF_TEMPERATURE_SENSOR)
         self._humidity_sensor = config.get(CONF_HUMIDITY_SENSOR)
         self._temperature_unit = hass.config.units.temperature_unit
 
-        self._unique_id = unique_id
-        self._name = device_name
-        self._device_code = device_code
         self._hvac_mode = None
         self._preset_mode = None
         self._fan_mode = None

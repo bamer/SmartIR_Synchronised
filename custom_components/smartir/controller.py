@@ -5,9 +5,6 @@ import binascii
 import requests
 import struct
 import json
-import logging
-
-_LOGGER = logging.getLogger(__name__)
 
 from .controller_const import (
     BROADLINK_CONTROLLER,
@@ -34,11 +31,6 @@ from homeassistant.const import ATTR_ENTITY_ID
 
 def get_controller(hass, controller, encoding, controller_data):
     """Return a controller compatible with the specification provided."""
-    _LOGGER.warning(
-        "Instantiating controller '%s' with data: %s",
-        controller,
-        controller_data,
-    )
     controllers = {
         BROADLINK_CONTROLLER: BroadlinkController,
         XIAOMI_CONTROLLER: XiaomiController,
@@ -286,7 +278,7 @@ class ESPHomeController(AbstractController):
         service_data = {"command": json.loads(command)}
 
         await self.hass.services.async_call(
-            "ESPHome",
+            "esphome",
             self._controller_data[CONTROLLER_CONF["ESPHOME_SERVICE"]],
             service_data,
         )

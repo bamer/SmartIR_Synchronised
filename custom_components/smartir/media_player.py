@@ -31,24 +31,44 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
+# custom_components/smartir/climate.py
+"""Climate platform that uses config‑entries."""
+from __future__ import annotations
 
-async def async_setup_platform(
-    hass: HomeAssistant, config: ConfigType, async_add_entities, discovery_info=None
-):
-    """Set up the IR Media Player platform."""
-    _LOGGER.debug("Setting up the SmartIR media player platform")
-    if not (
-        device_data := await load_device_data_file(
-            config,
-            "media_player",
-            {},
-            hass,
-        )
-    ):
-        _LOGGER.error("SmartIR media player device data init failed!")
-        return
+import logging
 
-    async_add_entities([SmartIRMediaPlayer(hass, config, device_data)])
+from homeassistant.components.media_player import MediaPlayerEntity, PLATFORM_SCHEMA
+from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.restore_state import RestoreEntity
+from .smartir_entity import SmartIRMediaPlayer  # Your existing class
+
+_LOGGER = logging.getLogger(__name__)
+
+async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
+    """Set up a climate device from a config‑entry."""
+    _LOGGER.debug("Setting up SmartIR Media Player entity for %s", entry.title)
+
+    # Load the same device data that the old YAML code used
+    device_data = await load_device_data_file(
+        entry.data,
+        "climate",
+        {
+            "hvac_modes": [mode for mode in HVAC_MODES if mode != HVACMode.OFF],
+        },
+        hass,
+    )
+    if not device_data:
+        _LOGGER.error("Could not load Media Player data for %s", entry.title)
+        return False
+
+    # Pass the config entry data to the existing SmartIRClimate class
+    entity = SmartIRMediaPlayer(hass, entry.data, device_data)
+    hass.async_create_task(
+        hass.helpers.entity_platform.async_add_entities([entity], True)
+    )
+    return True
+
 
 
 class SmartIRMediaPlayer(MediaPlayerEntity, RestoreEntity):
