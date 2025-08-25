@@ -187,7 +187,6 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
         }
 
-
         # Add device-specific sensors
         if self.device_type == "climate":
             schema_dict.update(
