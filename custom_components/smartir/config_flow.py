@@ -168,6 +168,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional("delay", default=0.5): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=10.0)),
         }
 
+
         # Add device-specific sensors
         if self.device_type == "climate":
             schema_dict.update({
