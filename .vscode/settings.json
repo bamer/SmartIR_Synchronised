@@ -10,5 +10,8 @@
         "homeassistant",
         "ONOFF",
         "smartir"
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": [],
+    "CodeGPT.apiKey": "LM Studio"
 }
