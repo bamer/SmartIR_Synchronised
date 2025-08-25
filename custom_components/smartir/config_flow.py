@@ -107,9 +107,10 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
         )
-# ------------------------------------------------------------------
-#  CONFIG FLOW – Étape de sélection d’encoding
-# ------------------------------------------------------------------
+
+    # ------------------------------------------------------------------
+    #  CONFIG FLOW – Étape de sélection d’encoding
+    # ------------------------------------------------------------------
     async def async_step_commands_encoding(self, user_input=None):
         """Ask the user to select the encoding type."""
         _LOGGER.warning("=== SmartIR Config Flow - Step Commands Encoding ===")
@@ -122,23 +123,26 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if chosen_encoding not in CONTROLLER_SUPPORT[str(self.controller_type)]:
                 errors["commands_encoding"] = "unsupported"
 
-      
-
             if not errors:
                 # On a terminé la configuration – on crée l’entrée
-                self._commands_encoding = user_input          # ajout de l’encoding dans le dict final
+                self._commands_encoding = (
+                    user_input  # ajout de l’encoding dans le dict final
+                )
                 return self.async_create_entry(title="", data=self.encodingType)
 
         # Formulaire d’encodage (selon HA 2024+ vous pouvez utiliser un selector)
-        data_schema = vol.Schema({
-            vol.Required("commands_encoding"): vol.In(CONTROLLER_SUPPORT[str(self.controller_type)])
-        })
+        data_schema = vol.Schema(
+            {
+                vol.Required("commands_encoding"): vol.In(
+                    CONTROLLER_SUPPORT[str(self.controller_type)]
+                )
+            }
+        )
 
         return self.async_show_form(
-            step_id="commands_encoding",
-            data_schema=data_schema,
-            errors=errors
+            step_id="commands_encoding", data_schema=data_schema, errors=errors
         )
+
     # ------------------------------------------------------------------
     #  DEVICE CONFIG – final step
     # ------------------------------------------------------------------
@@ -254,7 +258,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """
         if self.controller_type == "ESPHome":
             # Free‑form text – the ESPHome service name.
-            #return selector.TextSelector()
+            # return selector.TextSelector()
             return selector.EntitySelectorConfig(domain="esphome", multiple=False)
         # Default – pick a remote entity.
         return selector.EntitySelector(
