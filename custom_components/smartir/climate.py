@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import contextlib
 
 import voluptuous as vol
 from numbers import Number
@@ -24,12 +25,14 @@ from homeassistant.const import (
     PRECISION_WHOLE,
     UnitOfTemperature,
 )
-from homeassistant.core import HomeAssistant, Event, EventStateChangedData, callback
+from homeassistant.core import HomeAssistant, Event, EventStateChangedData, callback, ServiceCall
 from homeassistant.helpers.event import async_track_state_change_event
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util.unit_conversion import TemperatureConverter
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant import config_entries
 from .smartir_helpers import closest_match_value
 from .smartir_entity import load_device_data_file, SmartIR, PLATFORM_SCHEMA
 
@@ -51,25 +54,55 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-async def async_setup_platform(
-    hass: HomeAssistant, config: ConfigType, async_add_entities, discovery_info=None
-):
-    """Set up the IR Climate platform."""
-    _LOGGER.debug("Setting up the SmartIR climate platform")
-    if not (
-        device_data := await load_device_data_file(
-            config,
-            "climate",
-            {
-                "hvac_modes": [mode for mode in HVAC_MODES if mode != HVACMode.OFF],
-            },
-            hass,
-        )
-    ):
-        _LOGGER.error("SmartIR climate device data init failed!")
-        return
+# ---------------------------------------------------------------------------
+#  NEW – async_setup_entry   (called from __init__.py)
+# ---------------------------------------------------------------------------
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: config_entries.ConfigEntry,
+    async_add_entities,
+) -> bool:
+    """Set up SmartIR climate entity from a config entry."""
+    _LOGGER.debug("Setting up SmartIR climate platform from ConfigEntry")
 
-    async_add_entities([SmartIRClimate(hass, config, device_data)])
+    # The entry’s data dictionary already contains everything that used to be in
+    # `config`.  Pass it straight to `load_device_data_file`.
+    device_data = await load_device_data_file(
+        entry.data,
+        "climate",
+        {
+            "hvac_modes": [
+                mode for mode in HVAC_MODES if mode != HVACMode.OFF
+            ],
+        },
+        hass,
+    )
+    if not device_data:
+        _LOGGER.error("SmartIR climate device data init failed!")
+        return False
+
+    async_add_entities([SmartIRClimate(hass, entry.data, device_data)])
+    return True
+
+
+# async def reload_service_handler(service: ServiceCall) -> None:
+#         """Remove all user-defined groups and load new ones from config."""
+#         conf = None
+#         with contextlib.suppress(HomeAssistantError):
+#             conf =  await load_device_data_file(
+#             config,
+#             "climate",
+#             {
+#                 "hvac_modes": [mode for mode in HVAC_MODES if mode != HVACMode.OFF],
+#             },
+#             hass,
+#         )
+#         if conf is None:
+#             return
+#         await async_reload_integration_platforms(hass, DOMAIN, PLATFORMS)
+#         _async_setup_shared_data(hass)
+#         await _async_process_config(hass, conf)
+
 
 
 class SmartIRClimate(SmartIR, ClimateEntity, RestoreEntity):

@@ -3,9 +3,10 @@
   "name": "SmartIR",
   "codeowners": ["@litinoveweedle"],
   "dependencies": [],
-  "documentation": "https://github.com/litinoveweedle/SmartIR",
+  "documentation": "https://github.com/bamer/SmartIR_Synchronised/",
   "iot_class": "assumed_state",
-  "issue_tracker": "https://github.com/litinoveweedle/SmartIR/issues",
+  "issue_tracker": "https://github.com/bamer/SmartIR_Synchronised/issues",
   "requirements": [],
-  "version": "0.0.0"
+  "version": "0.0.1",
+  "config_flow": true
 }
