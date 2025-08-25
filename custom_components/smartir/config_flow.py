@@ -55,6 +55,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
         )
 
+
     # ------------------------------------------------------------------
     #  CONTROLLER – choose controller type
     # ------------------------------------------------------------------
