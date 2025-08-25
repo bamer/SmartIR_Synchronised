@@ -1,0 +1,84 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmartIR Configuration",
+        "description": "Select the type of device you want to control",
+        "data": {
+          "device_type": "Device Type"
+        }
+      },
+      "migration": {
+        "title": "SmartIR Migration",
+        "description": "We found existing SmartIR devices in your configuration.yaml. Would you like to migrate them to the new config flow?",
+        "data": {
+          "migrate": "Migrate existing devices",
+          "devices": "Select devices to migrate"
+        }
+      },
+      "migration_complete": {
+        "title": "Migration Complete",
+        "description": "The following devices have been migrated successfully:\n\n{devices}\n\nWould you like to remove the old YAML configuration from your configuration.yaml file?",
+        "data": {
+          "remove_yaml": "Show instructions to remove YAML configuration"
+        }
+      },
+      "device_type": {
+        "title": "Device Type Selection",
+        "description": "Select the type of device you want to control",
+        "data": {
+          "device_type": "Device Type"
+        }
+      },
+      "controller": {
+        "title": "Controller Selection",
+        "description": "Select your IR controller type",
+        "data": {
+          "controller": "Controller Type"
+        }
+      },
+      "device_config": {
+        "title": "Device Configuration",
+        "description": "Configure your SmartIR device settings.\n\n**Need help finding your device code?** [Browse available device codes here]({device_code_help_url})",
+        "data": {
+          "name": "Device Name",
+          "unique_id": "Unique ID",
+          "device_code": "Device Code",
+          "controller_data": "Controller",
+          "delay": "Command Delay (seconds)",
+          "temperature_sensor": "Temperature Sensor",
+          "humidity_sensor": "Humidity Sensor", 
+          "power_sensor": "Power Sensor",
+          "power_sensor_restore_state": "Restore state based on power sensor"
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Only a single instance is allowed."
+    },
+    "options": {
+      "device_type": {
+        "climate": "Climate (Air Conditioner)",
+        "fan": "Fan",
+        "media_player": "Media Player (TV/Audio)",
+        "light": "Light"
+      },
+      "controller": {
+        "broadlink": "Broadlink",
+        "xiaomi": "Xiaomi IR Remote (ChuangmiIr)",
+        "lookin": "LOOK.in Remote",
+        "esphome": "ESPHome User-defined service for remote transmitter",
+        "mqtt": "MQTT Publish service"
+      }
+    },
+    "error": {
+      "positive_number_required": "Device code must be a positive number",
+      "invalid_remote_entity": "Controller data must be a remote entity (e.g., remote.bedroom_remote)",
+      "entity_not_found": "The specified entity was not found",
+      "invalid_ip_address": "Controller data must be a valid IP address",
+      "invalid_mqtt_topic": "Controller data must be a valid MQTT topic",
+      "invalid_service_name": "Controller data must be a valid service name",
+      "invalid_entity": "The specified entity is not valid"
+    }
+  }
+}

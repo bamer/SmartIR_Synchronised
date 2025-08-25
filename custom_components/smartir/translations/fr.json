@@ -1,0 +1,69 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuration SmartIR",
+        "description": "Sélectionnez le type d'appareil que vous voulez contrôler",
+        "data": {
+          "device_type": "Type d'appareil"
+        }
+      },
+      "device_type": {
+        "title": "Sélection du type d'appareil", 
+        "description": "Sélectionnez le type d'appareil que vous voulez contrôler",
+        "data": {
+          "device_type": "Type d'appareil"
+        }
+      },
+      "controller": {
+        "title": "Sélection du contrôleur",
+        "description": "Sélectionnez le type de contrôleur IR", 
+        "data": {
+          "controller": "Type de contrôleur"
+        }
+      },
+      "device_config": {
+        "title": "Configuration de l'appareil",
+        "description": "Configurez les paramètres de votre appareil SmartIR.\n\n**Besoin d'aide pour trouver le code de votre appareil ?** [Parcourez les codes d'appareils disponibles ici]({device_code_help_url})",
+        "data": {
+          "name": "Nom de l'appareil",
+          "unique_id": "ID unique", 
+          "device_code": "Code de l'appareil",
+          "controller_data": "Contrôleur",
+          "delay": "Délai entre commandes (secondes)",
+          "temperature_sensor": "Capteur de température",
+          "humidity_sensor": "Capteur d'humidité",
+          "power_sensor": "Capteur d'alimentation",
+          "power_sensor_restore_state": "Restaurer l'état basé sur le capteur d'alimentation"
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Une seule instance est autorisée."
+    },
+    "options": {
+      "device_type": {
+        "climate": "Climatisation (Climatiseur)",
+        "fan": "Ventilateur",
+        "media_player": "Lecteur multimédia (TV/Audio)",
+        "light": "Éclairage"
+      },
+      "controller": {
+        "broadlink": "Broadlink",
+        "xiaomi": "Télécommande IR Xiaomi (ChuangmiIr)",
+        "lookin": "Télécommande LOOK.in",
+        "esphome": "Service défini par l'utilisateur ESPHome pour transmetteur distant",
+        "mqtt": "Service de publication MQTT"
+      }
+    },
+    "error": {
+      "positive_number_required": "Le code de l'appareil doit être un nombre positif",
+      "invalid_remote_entity": "Les données du contrôleur doivent être une entité télécommande (ex: remote.bedroom_remote)",
+      "entity_not_found": "L'entité spécifiée n'a pas été trouvée", 
+      "invalid_ip_address": "Les données du contrôleur doivent être une adresse IP valide",
+      "invalid_mqtt_topic": "Les données du contrôleur doivent être un topic MQTT valide",
+      "invalid_service_name": "Les données du contrôleur doivent être un nom de service valide",
+      "invalid_entity": "L'entité spécifiée n'est pas valide"
+    }
+  }
+}
