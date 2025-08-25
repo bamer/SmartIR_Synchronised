@@ -42,12 +42,18 @@ from __future__ import annotations
 import logging
 
 from homeassistant.components.light import LightEntity, PLATFORM_SCHEMA
-from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.const import (
+    CONF_NAME,
+    CONF_UNIQUE_ID,
+    CONF_DEVICE_CODE,
+    CONF_CONTROLLER_DATA,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.restore_state import RestoreEntity
-from .smartir_entity import SmartIRLight # Your existing class
+from .smartir_entity import SmartIRLight  # Your existing class
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
     """Set up a climate device from a config‑entry."""

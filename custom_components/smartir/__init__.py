@@ -6,6 +6,7 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the SmartIR integration from YAML (deprecated)."""
     # The old `async_setup_platform` functions are now replaced by

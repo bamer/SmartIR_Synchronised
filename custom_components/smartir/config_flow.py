@@ -1,5 +1,6 @@
 # custom_components/smartir/config_flow.py
-from homeassistant.helpers import selector          # <-- NEW IMPORT
+from homeassistant.helpers import selector  # <-- NEW IMPORT
+
 """UI flow for the SmartIR integration."""
 from __future__ import annotations
 
@@ -10,7 +11,12 @@ import voluptuous as vol
 from homeassistant import config_entries, core
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import selector, config_validation as cv
-from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.const import (
+    CONF_NAME,
+    CONF_UNIQUE_ID,
+    CONF_DEVICE_CODE,
+    CONF_CONTROLLER_DATA,
+)
 
 # Import the helper that loads device data from your yaml files.
 # This keeps the same logic you already use in `smartir_entity.py`.
@@ -20,13 +26,13 @@ _LOGGER = logging.getLogger(__name__)
 # custom_components/smartir/config_flow.py
 
 
-
 # ----------------------------------------------------------------------
 # 1️⃣  Common helpers
 # ----------------------------------------------------------------------
 def _debug_log(title: str, payload: dict) -> None:
     """Convenience wrapper that logs the whole step in one line."""
     _LOGGER.debug("%s: %s", title, payload)
+
 
 # ----------------------------------------------------------------------
 # 2️⃣  Platform specific ConfigFlow classes
@@ -41,6 +47,7 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
 
     def __init__(self) -> None:
         self._user_input: dict | None = None
+
     async def _async_get_esphome_services(self) -> list[str]:
         """
         Retourne la liste triée des noms de services disponibles sous le domaine
@@ -81,7 +88,9 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
                 vol.Required(CONF_NAME, default="SmartIR Climate"): cv.string,
                 vol.Required(CONF_UNIQUE_ID): cv.string,
                 vol.Required(CONF_DEVICE_CODE): cv.positive_int,
-                vol.Required("controller_type", default="ESPHome"): selector.SelectSelector(
+                vol.Required(
+                    "controller_type", default="ESPHome"
+                ): selector.SelectSelector(
                     selector.SelectSelectorConfig(options=["ESPHome", "Other"])
                 ),
                 vol.Required("esphome_service"): selector.TextSelector(),
@@ -109,7 +118,9 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
                     selector.EntitySelectorConfig(domain="sensor", multiple=False)
                 ),
                 vol.Optional("power_sensor"): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="binary_sensor", multiple=False)
+                    selector.EntitySelectorConfig(
+                        domain="binary_sensor", multiple=False
+                    )
                 ),
             }
         )
@@ -132,7 +143,9 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
             data=import_info,
         )
 
-    async def async_create_entry(self, title: str, data: dict) -> config_entries.FlowResult:
+    async def async_create_entry(
+        self, title: str, data: dict
+    ) -> config_entries.FlowResult:
         """Create the final entry."""
         _LOGGER.debug("Climate ConfigFlow: creating entry %s", title)
 
@@ -145,6 +158,7 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
 # ----------------------------------------------------------------------
 class SmartIRFanConfigFlow(config_entries.ConfigFlow):
     """Config flow for the Fan platform."""
+
     DOMAIN = "smartir"
     VERSION = 1
 
@@ -162,7 +176,9 @@ class SmartIRFanConfigFlow(config_entries.ConfigFlow):
                 vol.Required(CONF_NAME, default="SmartIR Fan"): cv.string,
                 vol.Required(CONF_UNIQUE_ID): cv.string,
                 vol.Required(CONF_DEVICE_CODE): cv.positive_int,
-                vol.Required("controller_type", default="ESPHome"): selector.SelectSelector(
+                vol.Required(
+                    "controller_type", default="ESPHome"
+                ): selector.SelectSelector(
                     selector.SelectSelectorConfig(options=["ESPHome", "Other"])
                 ),
                 vol.Required("esphome_service"): selector.TextSelector(),
@@ -196,7 +212,9 @@ class SmartIRLightConfigFlow(config_entries.ConfigFlow):
                 vol.Required(CONF_NAME, default="SmartIR Light"): cv.string,
                 vol.Required(CONF_UNIQUE_ID): cv.string,
                 vol.Required(CONF_DEVICE_CODE): cv.positive_int,
-                vol.Required("controller_type", default="ESPHome"): selector.SelectSelector(
+                vol.Required(
+                    "controller_type", default="ESPHome"
+                ): selector.SelectSelector(
                     selector.SelectSelectorConfig(options=["ESPHome", "Other"])
                 ),
                 vol.Required("esphome_service"): selector.TextSelector(),
@@ -230,7 +248,9 @@ class SmartIRMediaPlayerConfigFlow(config_entries.ConfigFlow):
                 vol.Required(CONF_NAME, default="SmartIR Media Player"): cv.string,
                 vol.Required(CONF_UNIQUE_ID): cv.string,
                 vol.Required(CONF_DEVICE_CODE): cv.positive_int,
-                vol.Required("controller_type", default="ESPHome"): selector.SelectSelector(
+                vol.Required(
+                    "controller_type", default="ESPHome"
+                ): selector.SelectSelector(
                     selector.SelectSelectorConfig(options=["ESPHome", "Other"])
                 ),
                 vol.Required("esphome_service"): selector.TextSelector(),
