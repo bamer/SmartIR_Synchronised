@@ -278,7 +278,7 @@ class ESPHomeController(AbstractController):
         service_data = {"command": json.loads(command)}
 
         await self.hass.services.async_call(
-            "esphome",
+            "ESPHome",
             self._controller_data[CONTROLLER_CONF["ESPHOME_SERVICE"]],
             service_data,
         )

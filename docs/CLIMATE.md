@@ -136,7 +136,7 @@ climate:
 ESPHome configuration example:
 
 ```yaml
-esphome:
+ESPHome:
   name: my_espir
   platform: ESP8266
   board: esp01_1m

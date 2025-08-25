@@ -21,7 +21,7 @@ CONTROLLER_TYPES = {
     "broadlink": "Broadlink",
     "xiaomi": "Xiaomi IR Remote (ChuangmiIr)",
     "lookin": "LOOK.in Remote",
-    "esphome": "ESPHome User-defined service for remote transmitter",
+    "ESPHome": "ESPHome User-defined service for remote transmitter",
     "mqtt": "MQTT Publish service",
 }
 

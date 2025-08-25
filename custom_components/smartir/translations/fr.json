@@ -52,7 +52,7 @@
         "broadlink": "Broadlink",
         "xiaomi": "Télécommande IR Xiaomi (ChuangmiIr)",
         "lookin": "Télécommande LOOK.in",
-        "esphome": "Service défini par l'utilisateur ESPHome pour transmetteur distant",
+        "ESPHome": "Service défini par l'utilisateur ESPHome pour transmetteur distant",
         "mqtt": "Service de publication MQTT"
       }
     },
