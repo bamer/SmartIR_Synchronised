@@ -1,9 +1,15 @@
 """Climate platform that uses config‑entries."""
+
 from __future__ import annotations
 import logging
 
 from homeassistant.components.climate import ClimateEntity, PLATFORM_SCHEMA
-from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.const import (
+    CONF_NAME,
+    CONF_UNIQUE_ID,
+    CONF_DEVICE_CODE,
+    CONF_CONTROLLER_DATA,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.restore_state import RestoreEntity
 from .smartir_entity import SmartIRClimate  # Your existing class

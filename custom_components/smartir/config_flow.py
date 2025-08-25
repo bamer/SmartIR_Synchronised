@@ -8,7 +8,12 @@ import voluptuous as vol
 from homeassistant import config_entries, core
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import selector, config_validation as cv
-from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID, CONF_DEVICE_CODE, CONF_CONTROLLER_DATA
+from homeassistant.const import (
+    CONF_NAME,
+    CONF_UNIQUE_ID,
+    CONF_DEVICE_CODE,
+    CONF_CONTROLLER_DATA,
+)
 
 # Import the helper that loads device data from your yaml files.
 # This keeps the same logic you already use in `smartir_entity.py`.
