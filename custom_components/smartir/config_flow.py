@@ -74,7 +74,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                         "broadlink",
                                         "xiaomi",
                                         "lookin",
-                                        "esphome",
+                                        "ESPHome",
                                         "mqtt",
                                     ],
                                     mode=selector.SelectSelectorMode.DROPDOWN,
@@ -97,7 +97,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 "broadlink",
                                 "xiaomi",
                                 "lookin",
-                                "esphome",
+                                "ESPHome",
                                 "mqtt",
                             ],
                             mode=selector.SelectSelectorMode.DROPDOWN,
@@ -109,7 +109,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     # ------------------------------------------------------------------
-    #  DEVICE CONFIG – final step (the only part that changed)
+    #  DEVICE CONFIG – final step 
     # ------------------------------------------------------------------
     async def async_step_device_config(self, user_input=None):
         """Handle the device configuration step."""
@@ -215,12 +215,12 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """
         Return a selector that matches the expected ``controller_data`` type.
 
-        * **esphome** → ``TextSelector`` (you type the ESPHome service name,
+        * **ESPHome** → ``TextSelector`` (you type the ESPHome service name,
           e.g. ``my_device_send_ir``).
         * all other controllers → ``EntitySelector`` limited to the ``remote``
           domain (the original behaviour).
         """
-        if self.controller_type == "esphome":
+        if self.controller_type == "ESPHome":
             # Free‑form text – the ESPHome service name.
             return selector.TextSelector()
         # Default – pick a remote entity.
@@ -262,7 +262,7 @@ class SmartIROptionsFlow(config_entries.OptionsFlow):
 
         # ---------- controller_data selector ----------
         controller_type = current_config.get("controller")
-        if controller_type == "esphome":
+        if controller_type == "ESPHome":
             selector_obj = selector.TextSelector()
         else:
             selector_obj = selector.EntitySelector(
