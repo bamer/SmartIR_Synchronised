@@ -116,7 +116,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         # si pas de fichiers json dans les codes regular on teste dans custom_codes
         device_files_custom_codesabsdir = os.path.join(
             COMPONENT_ABS_DIR, os.path.join("custom_codes", "climate")
-            
         )
         device_json_path = os.path.join(
             device_files_custom_codesabsdir, device_json_filename
