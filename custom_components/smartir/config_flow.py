@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 import voluptuous as vol
 
+
 from homeassistant import config_entries, core
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import selector, config_validation as cv
@@ -99,7 +100,6 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
         if self._user_input is None:
             return await self.async_abort(reason="missing_user_input")
 
-<<<<<<< HEAD
         schema = vol.Schema(
             {
                 vol.Optional("temperature_sensor"): selector.EntitySelector(
@@ -112,163 +112,6 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
                     selector.EntitySelectorConfig(domain="binary_sensor", multiple=False)
                 ),
             }
-=======
-        return self.async_show_form(
-            step_id="controller",
-            data_schema=vol.Schema(
-                {
-                    vol.Required("controller"): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=[
-                                "broadlink",
-                                "xiaomi",
-                                "lookin",
-                                "ESPHome",
-                                "mqtt",
-                            ],
-                            mode=selector.SelectSelectorMode.DROPDOWN,
-                            translation_key="controller",
-                        )
-                    )
-                }
-            ),
-        )
-
-    # ------------------------------------------------------------------
-    #  CONFIG FLOW – Étape de sélection d’encoding
-    # ------------------------------------------------------------------
-    async def async_step_commands_encoding(self, user_input=None):
-        """Ask the user to select the encoding type."""
-        _LOGGER.warning("=== SmartIR Config Flow - Step Commands Encoding ===")
-        errors = {}
-
-        if user_input is not None:
-            chosen_encoding = user_input.get("commands_encoding")
-
-            # Validation : est-ce un encodage connu ?
-            if chosen_encoding not in CONTROLLER_SUPPORT[str(self.controller_type)]:
-                errors["commands_encoding"] = "unsupported"
-
-            if not errors:
-                # On a terminé la configuration – on crée l’entrée
-                self._commands_encoding = (
-                    user_input  # ajout de l’encoding dans le dict final
-                )
-                return self.async_create_entry(title="", data=self.encodingType)
-
-        # Formulaire d’encodage (selon HA 2024+ vous pouvez utiliser un selector)
-        data_schema = vol.Schema(
-            {
-                vol.Required("commands_encoding"): vol.In(
-                    CONTROLLER_SUPPORT[str(self.controller_type)]
-                )
-            }
-        )
-
-        return self.async_show_form(
-            step_id="commands_encoding", data_schema=data_schema, errors=errors
-        )
-
-    # ------------------------------------------------------------------
-    #  DEVICE CONFIG – final step
-    # ------------------------------------------------------------------
-    async def async_step_device_config(self, user_input=None):
-        """Handle the device configuration step."""
-        _LOGGER.debug("=== SmartIR Config Flow - Step Device Config ===")
-        errors = {}
-
-        if user_input is not None:
-            # --------------------------------------------------------------
-            #  Validate the required fields
-            # --------------------------------------------------------------
-            device_code = user_input.get("device_code")
-            if device_code is None:
-                errors["device_code"] = "device_code_required"
-            elif device_code <= 0:
-                errors["device_code"] = "positive_number_required"
-
-            if not errors:
-                device_name = user_input.get(
-                    "name", f"SmartIR {self.device_type} {self.controller_type}"
-                )
-                controller_name = CONTROLLER_SUPPORT[str(self.controller_type)]
-
-                data = {
-                    "device_type": self.device_type,
-                    "controller": self.controller_type,
-                    "name": device_name,
-                    "device_code": device_code,
-                    "controller_data": user_input["controller_data"],
-                }
-
-                if user_input.get("delay") is not None:
-                    data["delay"] = user_input["delay"]
-
-                return self.async_create_entry(
-                    title=f"{device_name} ({controller_name})", data=data
-                )
-
-        # --------------------------------------------------------------
-        #  Build the schema – **new selector logic**
-        # --------------------------------------------------------------
-        schema_dict = {
-            vol.Optional("name"): str,
-            vol.Required("device_code"): vol.All(int, vol.Range(min=1)),
-            # <-- the selector now adapts to the chosen controller type
-            vol.Required("controller_data"): self._selector_for_controller_data(),
-            vol.Required("commands_encoding"): self.async_step_commands_encoding(),
-            vol.Optional("delay", default=0.5): vol.All(
-                vol.Coerce(float), vol.Range(min=0.1, max=10.0)
-            ),
-        }
-
-        # --------------------------------------------------------------
-        #  Device‑specific optional entities / sensors
-        # --------------------------------------------------------------
-        if self.device_type == "climate":
-            schema_dict.update(
-                {
-                    vol.Optional("temperature_sensor"): selector.EntitySelector(
-                        selector.EntitySelectorConfig(
-                            domain="sensor",
-                            device_class="temperature",
-                            multiple=False,
-                        )
-                    ),
-                    vol.Optional("humidity_sensor"): selector.EntitySelector(
-                        selector.EntitySelectorConfig(
-                            domain="sensor",
-                            device_class="humidity",
-                            multiple=False,
-                        )
-                    ),
-                    vol.Optional("power_sensor"): selector.EntitySelector(
-                        selector.EntitySelectorConfig(
-                            domain="sensor", device_class="power", multiple=False
-                        )
-                    ),
-                    vol.Optional("power_sensor_restore_state", default=False): bool,
-                }
-            )
-        elif self.device_type in ["fan", "light", "media_player"]:
-            schema_dict.update(
-                {
-                    vol.Optional("power_sensor"): selector.EntitySelector(
-                        selector.EntitySelectorConfig(
-                            domain="sensor", device_class="power", multiple=False
-                        )
-                    ),
-                }
-            )
-
-        device_code_help_url = f"https://github.com/smartHomeHub/SmartIR/tree/master/codes/{self.device_type}"
-
-        return self.async_show_form(
-            step_id="device_config",
-            data_schema=vol.Schema(schema_dict),
-            errors=errors,
-            description_placeholders={"device_code_help_url": device_code_help_url},
->>>>>>> 4a9ce58254801c98da77fa97da1947fe15f31ffa
         )
 
         return self.async_show_form(step_id="optional", data_schema=schema)
@@ -278,7 +121,6 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
         Called when a YAML entry is imported.
         We simply convert it to a config‑entry so the UI stays consistent.
         """
-<<<<<<< HEAD
         _LOGGER.debug("Climate ConfigFlow: async_step_import called")
         _debug_log("Importing data", import_info)
 
@@ -288,15 +130,6 @@ class SmartIRClimateConfigFlow(config_entries.ConfigFlow):
         return await self.async_create_entry(
             title=import_info.get(CONF_NAME, "SmartIR Climate"),
             data=import_info,
-=======
-        if self.controller_type == "ESPHome":
-            # Free‑form text – the ESPHome service name.
-            # return selector.TextSelector()
-            return selector.EntitySelectorConfig(domain="esphome", multiple=False)
-        # Default – pick a remote entity.
-        return selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="remote", multiple=False)
->>>>>>> 4a9ce58254801c98da77fa97da1947fe15f31ffa
         )
 
     async def async_create_entry(self, title: str, data: dict) -> config_entries.FlowResult:
