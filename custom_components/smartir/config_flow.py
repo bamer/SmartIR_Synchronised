@@ -1,8 +1,9 @@
+from __future__ import annotations
 # custom_components/smartir/config_flow.py
 from homeassistant.helpers import selector  # <-- NEW IMPORT
 
 """UI flow for the SmartIR integration."""
-from __future__ import annotations
+
 
 import logging
 import voluptuous as vol
