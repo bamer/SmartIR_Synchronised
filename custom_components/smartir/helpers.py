@@ -5,6 +5,7 @@ from .const import DOMAIN, CONF_CONTROLLER_TYPE, CONTROLLER_TYPES
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
+
 async def async_setup_entry_platform(
     hass, entry, async_add_entities, platform_setup_fn
 ):
@@ -23,6 +24,7 @@ async def async_setup_entry_platform(
         config["unique_id"] = f"smartir_{unique_id}"
 
     await platform_setup_fn(hass, config, async_add_entities)
+
 
 async def _async_fetch_esphome_services(
     hass: HomeAssistant, entity_id: str

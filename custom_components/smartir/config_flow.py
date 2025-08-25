@@ -124,9 +124,7 @@ class SmartIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
             ),
             vol.Optional(CONF_HUMIDITY_SENSOR): selector.EntitySelector(
-                selector.EntitySelectorConfig(
-                    domain="sensor", device_class="humidity"
-                )
+                selector.EntitySelectorConfig(domain="sensor", device_class="humidity")
             ),
         }
 
